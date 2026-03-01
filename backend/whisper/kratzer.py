@@ -292,9 +292,9 @@ def getLecturerData(id, response, url):
             lecturer_names.append(lect.get_text(strip=True))
             m = re.search(r"/lecturer/(\d+)", lect["href"])
             lecturer_ids.append(int(m.group(1)) if m else None)
-        print("lecturer_names:", lecturer_names)
-        print("lecturer_ids:", lecturer_ids)
-        print("lectures:", lectures)
+        logger.debug(f"lecturer_names: {lecturer_names}")
+        logger.debug(f"lecturer_ids: {lecturer_ids}")
+        logger.debug(f"lectures: {lectures}")
         
         inner = lecture_info_div.decode_contents()
 
