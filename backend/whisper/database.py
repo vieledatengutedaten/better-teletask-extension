@@ -262,7 +262,6 @@ def add_lecture_data(lecture_data):
             conn.commit()
                 
 
-        print("1")
         cur.execute(
             "INSERT INTO lecture_data (lecture_id, language, date, lecturer_ids, series_id, semester, duration, title, video_mp4) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);",
             (
@@ -277,7 +276,6 @@ def add_lecture_data(lecture_data):
                 url
             ),
         )
-        print("2")
 
         conn.commit()
 
@@ -766,7 +764,7 @@ def get_all_vtt_blobs():
         return rows
 
     except (Exception, psycopg2.Error) as error:
-        print("Error while querying PostgreSQL", error)
+        logger.error("Error while querying PostgreSQL", error)
         return []
     finally:
         if conn:
