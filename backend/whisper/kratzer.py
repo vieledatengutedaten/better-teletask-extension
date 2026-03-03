@@ -109,7 +109,7 @@ def pingVideoByID(id) -> str:
     try: 
         response = fetchBody(id)
     except HTTPError as e:
-        logger.error("Error fetching body:", extra={'id': id})
+        logger.error(f"Error fetching body: {e}", extra={'id': id})
         return ""
     if(response.status_code == 200):
         logging.info("Code 200, Video exists", extra={'id': id})
