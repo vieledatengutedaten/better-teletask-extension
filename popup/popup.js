@@ -68,42 +68,58 @@ document.addEventListener('DOMContentLoaded', async () => {
     const doubleclick = document.getElementById('featuresDoubleclick');
     const noresizelimit = document.getElementById('featuresNoresizelimit')
     const kplay = document.getElementById('featuresKplay');
-    const editsubstyle = document.getElementById('featuresEditsubstyle');
-    const subcontrast = document.getElementById('featuresSubtitleContrast');
-    const subtitleFont = document.getElementById('featuresSubtitleFont');
+
+    const moveable = document.getElementById('featuresMoveable');
+    const contrast = document.getElementById('featuresContrast');
+    const font = document.getElementById('featuresFont');
+
     const saveBtn = document.getElementById('featuresSave');
     const reloadBtn = document.getElementById('featuresReload');
     const statusDiv = document.getElementById('featuresStatus');
     const { featureSettings } = await browser.storage.local.get('featureSettings');
 
-    const updateSubtitleFontPreview = () => {
-      subtitleFont.style.fontFamily = subtitleFont.value ? `"${subtitleFont.value}"` : 'unset';
+    const updateFontPreview = () => {
+      font.style.fontFamily = font.value ? `"${font.value}"` : 'unset';
     };
     
     if (featureSettings) {
       for (const [key, value] of Object.entries(featureSettings)) {
+        if (key === 'subtitlestyle' && typeof value === 'object') {
+          for (const [subKey, subValue] of Object.entries(value)) {
+            const subElement = document.getElementById(`features${subKey.charAt(0).toUpperCase() + subKey.slice(1)}`);
+            if (subElement) {
+              if (subElement.type === 'checkbox') subElement.checked = subValue;
+            }
+          }
+          if (typeof value.font === 'string') font.value = value.font;
+          continue;
+        }
         const element = document.getElementById(`features${key.charAt(0).toUpperCase() + key.slice(1)}`);
         if (element) {
           if (element.type === 'checkbox') element.checked = value;
         }
       }
-      if (typeof featureSettings.subtitleFont === 'string') subtitleFont.value = featureSettings.subtitleFont;
     }
-    updateSubtitleFontPreview();
+    updateFontPreview();
 
-    subtitleFont.addEventListener('change', () => {
-      updateSubtitleFontPreview();
+    font.addEventListener('change', () => {
+      updateFontPreview();
     });
 
     saveBtn.addEventListener('click', async () => {
+      const { featureSettings: existing } = await browser.storage.local.get('featureSettings');
       const featureSettings = {
         subtitles: subtitles.checked,
         doubleclick: doubleclick.checked,
         noresizelimit: noresizelimit.checked,
         kplay: kplay.checked,
-        editsubstyle: editsubstyle.checked,
-        subcontrast: subcontrast.checked,
-        subtitleFont: subtitleFont.value,
+        subtitlestyle : {
+          moveable: moveable.checked,
+          position: existing?.subtitlestyle?.position ?? [null, null],
+          size: existing?.subtitlestyle?.size ?? null,
+          contrast: contrast.checked,
+          font: font.value,
+        }
       };
       await browser.storage.local.set({ featureSettings });
       statusDiv.style.visibility = "visible";
