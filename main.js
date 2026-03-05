@@ -9,11 +9,18 @@
 
   removeResizeLimit(featureSettings);
   
-  await setSubtitleStyle(featureSettings, player);
+  const subtitleHandler = async (ev) => {
+    const d = ev.detail || {};
+    if (d.verb === 'video_subtitle_change') {
+      await setSubtitleStyle(featureSettings, player);
+    }
+  };
+  player.addEventListener('analytics', subtitleHandler);
+  window.__stopCaptionSubtitleProbe = () => player.removeEventListener('analytics', subtitleHandler);
 
   document.addEventListener('dblclick', doubleclickHandler(featureSettings, player), true);
 
-  document.addEventListener('keydown', keydownHandler(featureSettings, player));
+  document.addEventListener('keydown', await keydownHandler(featureSettings, player));
 
   if ('mediaSession' in navigator && navigator.mediaSession?.setActionHandler) {
     try {

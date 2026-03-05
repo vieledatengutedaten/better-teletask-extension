@@ -2,8 +2,7 @@ export function removeResizeLimit(featureSettings) {
   if (featureSettings?.noresizelimit) {
     const script = document.createElement('script');
     script.textContent = `
-        const videoPlayer = document.querySelector('video-player');
-        const dualStream = videoPlayer.shadowRoot.querySelector('dual-stream');
+        const dualStream = document.querySelector('video-player').shadowRoot.querySelector('dual-stream');
         dualStream._ensureWidthPercentage = (percentage) => Math.max(0, Math.min(1, percentage));
     `;
     
@@ -13,22 +12,10 @@ export function removeResizeLimit(featureSettings) {
 }
 
 export async function setSubtitleStyle(settings, player) {
-  if (settings?.subcontrast || settings?.subtitleFont) {
-    let subs = null;
-    for (let i = 0; i < 100 && !subs; i++) {
-      subs = player.shadowRoot.querySelector('captions-display').shadowRoot.getElementById('container__captions').querySelector('.caption-cue-text');
-      if (!subs) await new Promise(resolve => setTimeout(resolve, 100));
-    }
-
-    let fontName = settings.subtitleFont
-    if (fontName) {
-
-      let transcript = null;
-      for (let i = 0; i < 100 && !transcript; i++) {
-        transcript = player.shadowRoot.querySelector('interactive-transcript').shadowRoot.getElementById("container__interactive_transcript");
-        if (!transcript) await new Promise(resolve => setTimeout(resolve, 100));
-      }
-
+  if (settings?.subtitlestyle.font || settings?.subtitlestyle.contrast || settings?.subtitlestyle.moveable) {
+    const subbox = player.shadowRoot.querySelector('captions-display').shadowRoot.getElementById('container__captions');
+    
+    if (settings?.subtitlestyle.font) {
       if (!document.getElementById('btt-fonts-css')) {
         const link = document.createElement('link');
         link.id = 'btt-fonts-css';
@@ -39,22 +26,26 @@ export async function setSubtitleStyle(settings, player) {
           link.addEventListener('load', resolve, { once: true });
           link.addEventListener('error', resolve, { once: true });
         });
+      }
 
-        if (subs) {
-          subs.style.fontFamily = `"${fontName}"`;
-          console.info('[btt-subtitles] subtitle font set to', fontName);
-        }
-        else console.warn('[btt-subtitles] subtitle container not found, font not applied');
-        if (transcript) {
-          transcript.style.fontFamily = `"${fontName}"`;
-          console.info('[btt-subtitles] transcript font set to', fontName);
-        }
-        else console.warn('[btt-subtitles] transcript container not found, font not applied');
+      const transcript = player.shadowRoot.querySelector('interactive-transcript').shadowRoot.getElementById("container__interactive_transcript");
+      const fontName = settings.subtitlestyle.font
+      if (fontName) {
+        transcript.style.fontFamily = `"${fontName}"`;
+        subbox.style.fontFamily = `"${fontName}"`;
+        console.info('[btt-subtitles] captions font set to', fontName);
+        window.__stopCaptionSubtitleProbe?.()
       }
     }
 
-    if (settings?.subcontrast) {
-      subs.style.backgroundColor = 'rgb(0, 0, 0)'
+    if (settings?.subtitlestyle.contrast) {
+      subbox.querySelector('.caption-cue-text').style.backgroundColor = 'rgb(0, 0, 0)';
+    }
+
+    if (settings?.subtitlestyle.moveable) {
+      if (settings.subtitlestyle.position[0]) {subbox.style.left = settings.subtitlestyle.position[0]};
+      if (settings.subtitlestyle.position[1]) {subbox.style.bottom = settings.subtitlestyle.position[1]};
+      if (settings.subtitlestyle.size) {subbox.querySelector('.caption-cue-text').style.fontSize = settings.subtitlestyle.size};
     }
   }
 }
@@ -74,22 +65,28 @@ export function doubleclickHandler(featureSettings, player) {
 }
 
 export function keydownHandler(featureSettings, player) {
-  return (e)=>{
+  return async (e)=>{
     switch (e.key.toLowerCase()) {
       case 'k': if (featureSettings?.kplay) {
         const playBtn = player.shadowRoot && player.shadowRoot.querySelector('control-bar').shadowRoot.querySelector('playpause-control').shadowRoot.getElementById('button__play_pause');
         playBtn.click();
       }
       break;
-      case '+': case '-': if (featureSettings?.editsubstyle) {
+      case '+': case '-': if (featureSettings?.subtitlestyle.moveable) {
         const subs = player.shadowRoot.querySelector('captions-display').shadowRoot.getElementById('container__captions').querySelector('.caption-cue-text');
         subs.style.fontSize = (parseInt(window.getComputedStyle(subs, null).getPropertyValue('font-size'), 10) + (e.key == '+' ? 5 : -5)).toString() + "px";
+        featureSettings.subtitlestyle.size = subs.style.fontSize;
+        await browser.storage.local.set({ featureSettings });
       }
       break;
-      case 'r': if  (featureSettings?.editsubstyle) {
+      case 'r': if  (featureSettings?.subtitlestyle.moveable) {
         const subbox = player.shadowRoot.querySelector('captions-display').shadowRoot.getElementById('container__captions');
-        subbox.removeAttribute('style');
-        subbox.querySelector('.caption-cue-text').removeAttribute('style');
+        subbox.style.removeProperty('left');
+        subbox.style.removeProperty('bottom');
+        subbox.querySelector('.caption-cue-text').style.removeProperty('font-size');
+        featureSettings.subtitlestyle.size = null;
+        featureSettings.subtitlestyle.position = [null, null];
+        await browser.storage.local.set({ featureSettings });
       }
       break;
       default: return;
@@ -106,7 +103,7 @@ export function mediasessionHandler(featureSettings, player) {
 }
 
 export function subtitleDragHandler(featureSettings, player) {
-  if (!featureSettings?.editsubstyle) return null;
+  if (!featureSettings?.subtitlestyle.moveable) return null;
 
   const subbox = player.shadowRoot.querySelector('captions-display').shadowRoot.getElementById('container__captions');
 
@@ -123,9 +120,10 @@ export function subtitleDragHandler(featureSettings, player) {
     offsetY = rect.bottom - e.clientY;
   };
 
-  const onMouseUp = () => {
+  const onMouseUp = async () => {
     if (draggingSubs) {
       draggingSubs = false;
+      await browser.storage.local.set({ featureSettings });
     }
   };
 
@@ -133,7 +131,9 @@ export function subtitleDragHandler(featureSettings, player) {
     if (draggingSubs) {
       const parentRect = subbox.offsetParent.getBoundingClientRect();
       subbox.style.left = (e.clientX - parentRect.left - offsetX) + "px";
+      featureSettings.subtitlestyle.position[0] = subbox.style.left;
       subbox.style.bottom = (parentRect.bottom - e.clientY - offsetY) + "px";
+      featureSettings.subtitlestyle.position[1] = subbox.style.bottom;
     }
   };
 
