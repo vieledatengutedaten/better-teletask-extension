@@ -19,11 +19,11 @@ BTT also adds some quality-of-life features to the Tele-Task player to make it m
 
 ## Installation
 
-Currently, BTT only works in Firefox. To install the browser extension, head to the [Releases](https://github.com/C0NZZ/better-teletask/releases) page and follow the instructions there.
+Currently, BTT only works in Firefox. To install the browser extension, head to the [Releases](https://github.com/vieledatengutedaten/better-teletask-extension/releases) page and follow the instructions there.
 
 ## FAQ
 
-If you have any more questions, please consult our [FAQ](https://github.com/C0NZZ/better-teletask/wiki/FAQ) or contact us directly.
+If you have any more questions, please consult our [FAQ](https://github.com/vieledatengutedaten/better-teletask-extension/wiki/FAQ) or contact us directly.
 
 ## Disclaimer
 
