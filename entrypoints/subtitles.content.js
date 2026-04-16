@@ -4,6 +4,7 @@ export default defineContentScript({
     {
       const { featureSettings } = await browser.storage.local.get('featureSettings');
       if (!featureSettings?.subtitles) return;
+      if (featureSettings?.simpleplayer) return;
     }
     const { apiKey } = await browser.storage.local.get('apiKey');
     if (!apiKey) {

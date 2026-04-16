@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const doubleclick = document.getElementById('featuresDoubleclick');
     const noresizelimit = document.getElementById('featuresNoresizelimit');
     const kplay = document.getElementById('featuresKplay');
+    const simpleplayer = document.getElementById('featuresSimpleplayer');
 
     const moveable = document.getElementById('featuresMoveable');
     const contrast = document.getElementById('featuresContrast');
@@ -116,6 +117,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         doubleclick: doubleclick.checked,
         noresizelimit: noresizelimit.checked,
         kplay: kplay.checked,
+        simpleplayer: simpleplayer.checked,
         subtitlestyle: {
           moveable: moveable.checked,
           position: existing?.subtitlestyle?.position ?? [null, null],

@@ -10,12 +10,14 @@ import {
 export default defineContentScript({
   matches: ['https://www.tele-task.de/lecture/video/*'],
   async main() {
+    const { featureSettings } = await browser.storage.local.get('featureSettings');
+    if (featureSettings?.simpleplayer) return;
+
     const player = document.querySelector('video-player');
     if (!player) {
       console.warn("[btt-tweaks] video player not found, couldn't apply tweaks");
       return;
     }
-    const { featureSettings } = await browser.storage.local.get('featureSettings');
 
     removeResizeLimit(featureSettings);
 
