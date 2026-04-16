@@ -33,23 +33,9 @@ export default defineContentScript({
 
     async function fetchSubtitle(url) {
       try {
-        const response = await fetch(url, {
-          headers: { Authorization: `Bearer ${apiKey}` },
-        });
-        const text = await response.text();
-        if (!response.ok) {
-          let message;
-          try {
-            const json = JSON.parse(text);
-            if (json.error) message = json.error;
-          } catch {
-            if (response.status) {
-              message = `HTTP ${response.status}`;
-            }
-          }
-          throw new Error(message);
-        }
-        return text;
+        const result = await browser.runtime.sendMessage({ type: 'FETCH_SUBTITLE', url, apiKey });
+        if (!result.ok) throw new Error(result.error);
+        return result.text;
       } catch (error) {
         console.error('[btt-subtitles] Error fetching subtitle:', error);
         return null;
