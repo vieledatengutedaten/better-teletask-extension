@@ -5,7 +5,7 @@ export function removeResizeLimit(featureSettings) {
         const dualStream = document.querySelector('video-player').shadowRoot.querySelector('dual-stream');
         dualStream._ensureWidthPercentage = (percentage) => Math.max(0, Math.min(1, percentage));
     `;
-    
+
     (document.head || document.documentElement).appendChild(script);
     script.remove();
   };
@@ -14,13 +14,13 @@ export function removeResizeLimit(featureSettings) {
 export async function setSubtitleStyle(settings, player) {
   if (settings?.subtitlestyle.font || settings?.subtitlestyle.contrast || settings?.subtitlestyle.moveable) {
     const subbox = player.shadowRoot.querySelector('captions-display').shadowRoot.getElementById('container__captions');
-    
+
     if (settings?.subtitlestyle.font) {
       if (!document.getElementById('btt-fonts-css')) {
         const link = document.createElement('link');
         link.id = 'btt-fonts-css';
         link.rel = 'stylesheet';
-        link.href = browser.runtime.getURL('fonts/fonts.css');
+        link.href = browser.runtime.getURL('/fonts/fonts.css');
         document.head.appendChild(link);
         await new Promise(resolve => {
           link.addEventListener('load', resolve, { once: true });

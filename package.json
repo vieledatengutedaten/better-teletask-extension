@@ -1,0 +1,22 @@
+{
+  "name": "better-teletask-extension",
+  "description": "Adds useful features like subtitles to HPI Tele-Task.",
+  "version": "0.8.2",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "dev:firefox-mv3": "wxt -b firefox --mv3",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "build:firefox-mv3": "wxt build -b firefox --mv3",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "zip:firefox-mv3": "wxt zip -b firefox --mv3",
+    "postinstall": "wxt prepare"
+  },
+  "devDependencies": {
+    "wxt": "^0.20.0"
+  }
+}

@@ -1,5 +1,9 @@
 .env
 node_modules
+.output
+.wxt
+stats.html
+web-ext.config.ts
 crawl_results.txt
 *.mp3
 *.vtt
