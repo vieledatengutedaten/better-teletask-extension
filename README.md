@@ -1,3 +1,5 @@
+# This project has moved to [Codeberg](https://codeberg.org/vieledatengutedaten/better-teletask-extension).
+
 # Better Tele-Task
 
 **Better Tele-Task** (BTT) is a browser extension created by HPI students who love Tele-Task but are sometimes also annoyed by it. If you feel the same, this extension might be right for you.
